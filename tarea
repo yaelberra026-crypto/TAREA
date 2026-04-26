@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mapa Político de América</title>
+<style>
+  body { margin: 0; background: #e8f4f8; font-family: Arial, sans-serif; }
+  h1 { text-align: center; color: #2c3e50; padding: 15px 0 5px; font-size: 22px; }
+  #map { width: 100%; height: 90vh; }
+  .legend { position: fixed; bottom: 20px; right: 20px; background: white; border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-size: 13px; }
+  .legend h3 { margin: 0 0 8px; font-size: 14px; color: #2c3e50; }
+  .legend-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .line { width: 30px; height: 3px; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body>
+<h1>Mapa Político de América</h1>
+<div id="map"></div>
+<div class="legend">
+  <h3>Referencias</h3>
+  <div class="legend-item"><div class="line" style="background:#e74c3c;"></div> Ecuador</div>
+  <div class="legend-item"><div class="line" style="background:#e67e22; border-top: 2px dashed #e67e22; height:0"></div> Trópico de Cáncer</div>
+  <div class="legend-item"><div class="line" style="background:#27ae60; border-top: 2px dashed #27ae60; height:0"></div> Trópico de Capricornio</div>
+  <div class="legend-item"><div class="line" style="background:#3498db; border-top: 2px dashed #3498db; height:0"></div> Círculo Polar Ártico</div>
+  <div class="legend-item"><div style="width:10px;height:10px;background:#e74c3c;border-radius:50%;"></div> Capital</div>
+</div>
+<script>
+const map = L.map('map', { center: [15, -80], zoom: 3, minZoom: 2 });
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap',
+  maxZoom: 10
+}).addTo(map);
+
+// Líneas geográficas
+const lines = [
+  { lat: 0,      color: '#e74c3c', weight: 2.5, dash: '',        label: 'Ecuador' },
+  { lat: 23.437, color: '#e67e22', weight: 2,   dash: '8,6',     label: 'Trópico de Cáncer' },
+  { lat: -23.437,color: '#27ae60', weight: 2,   dash: '8,6',     label: 'Trópico de Capricornio' },
+  { lat: 66.563, color: '#3498db', weight: 2,   dash: '8,6',     label: 'Círculo Polar Ártico' },
+];
+
+lines.forEach(l => {
+  L.polyline([[ l.lat, -180], [l.lat, 180]], {
+    color: l.color, weight: l.weight, dashArray: l.dash, opacity: 0.85
+  }).addTo(map).bindTooltip(l.label, { permanent: false, sticky: true });
+});
+
+// Etiquetas de océanos
+const oceanLabel = L.divIcon({ className: '', html: '<div style="color:#1a6fa8;font-size:15px;font-weight:bold;font-style:italic;text-shadow:1px 1px 2px white;">Océano<br>Pacífico</div>', iconAnchor:[40,20] });
+L.marker([5, -140], { icon: oceanLabel, interactive: false }).addTo(map);
+
+const atlanticLabel = L.divIcon({ className: '', html: '<div style="color:#1a6fa8;font-size:15px;font-weight:bold;font-style:italic;text-shadow:1px 1px 2px white;">Océano<br>Atlántico</div>', iconAnchor:[40,20] });
+L.marker([20, -35], { icon: atlanticLabel, interactive: false }).addTo(map);
+
+// Capitales
+const capitals = [
+  // América del Norte
+  { name: 'Ottawa', country: 'Canadá', lat: 45.42, lng: -75.69 },
+  { name: 'Washington D.C.', country: 'Estados Unidos', lat: 38.90, lng: -77.03 },
+  { name: 'Ciudad de México', country: 'México', lat: 19.43, lng: -99.13 },
+  // América Central
+  { name: 'Guatemala', country: 'Guatemala', lat: 14.64, lng: -90.51 },
+  { name: 'Tegucigalpa', country: 'Honduras', lat: 14.07, lng: -87.20 },
+  { name: 'San Salvador', country: 'El Salvador', lat: 13.70, lng: -89.21 },
+  { name: 'Managua', country: 'Nicaragua', lat: 12.13, lng: -86.29 },
+  { name: 'San José', country: 'Costa Rica', lat: 9.93, lng: -84.08 },
+  { name: 'Panamá', country: 'Panamá', lat: 8.99, lng: -79.52 },
+  { name: 'Belmopan', country: 'Belice', lat: 17.25, lng: -88.76 },
+  // Caribe
+  { name: 'La Habana', country: 'Cuba', lat: 23.13, lng: -82.38 },
+  { name: 'Kingston', country: 'Jamaica', lat: 17.99, lng: -76.79 },
+  { name: 'Puerto Príncipe', country: 'Haití', lat: 18.54, lng: -72.34 },
+  { name: 'Santo Domingo', country: 'Rep. Dominicana', lat: 18.47, lng: -69.90 },
+  { name: 'Nassau', country: 'Bahamas', lat: 25.04, lng: -77.34 },
+  { name: 'Puerto España', country: 'Trinidad y Tobago', lat: 10.65, lng: -61.52 },
+  { name: 'Bridgetown', country: 'Barbados', lat: 13.10, lng: -59.62 },
+  { name: 'Castries', country: 'Santa Lucía', lat: 14.01, lng: -60.99 },
+  { name: 'Kingstown', country: 'San Vicente y las Granadinas', lat: 13.16, lng: -61.22 },
+  { name: "St. John's", country: 'Antigua y Barbuda', lat: 17.12, lng: -61.85 },
+  { name: 'Roseau', country: 'Dominica', lat: 15.30, lng: -61.39 },
+  { name: 'Basseterre', country: 'San Cristóbal y Nieves', lat: 17.30, lng: -62.72 },
+  { name: 'Georgetown', country: 'Guyana', lat: 6.80, lng: -58.16 },
+  { name: 'Paramaribo', country: 'Surinam', lat: 5.85, lng: -55.20 },
+  { name: 'Cayena', country: 'Guyana Francesa', lat: 4.93, lng: -52.33 },
+  { name: 'St. George\'s', country: 'Granada', lat: 12.05, lng: -61.75 },
+  // América del Sur
+  { name: 'Bogotá', country: 'Colombia', lat: 4.71, lng: -74.07 },
+  { name: 'Caracas', country: 'Venezuela', lat: 10.49, lng: -66.88 },
+  { name: 'Quito', country: 'Ecuador', lat: -0.22, lng: -78.51 },
+  { name: 'Lima', country: 'Perú', lat: -12.05, lng: -77.04 },
+  { name: 'La Paz', country: 'Bolivia', lat: -16.50, lng: -68.15 },
+  { name: 'Brasilia', country: 'Brasil', lat: -15.78, lng: -47.93 },
+  { name: 'Asunción', country: 'Paraguay', lat: -25.28, lng: -57.64 },
+  { name: 'Santiago', country: 'Chile', lat: -33.45, lng: -70.67 },
+  { name: 'Buenos Aires', country: 'Argentina', lat: -34.61, lng: -58.38 },
+  { name: 'Montevideo', country: 'Uruguay', lat: -34.90, lng: -56.19 },
+];
+
+const capitalIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:8px;height:8px;background:#c0392b;border:2px solid white;border-radius:50%;box-shadow:0 0 3px rgba(0,0,0,0.5);"></div>',
+  iconAnchor: [5, 5]
+});
+
+capitals.forEach(c => {
+  L.marker([c.lat, c.lng], { icon: capitalIcon })
+    .addTo(map)
+    .bindPopup(`<b>${c.name}</b><br>Capital de ${c.country}`)
+    .bindTooltip(`${c.name} — ${c.country}`, { sticky: true });
+});
+</script>
+</body>
+</html>
